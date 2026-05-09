@@ -100,3 +100,32 @@ sys_setpriority(void)
   myproc()->priority = priority;
   return 0;
 }
+
+int
+sys_pinfo(void)
+{
+  struct pinfo *table;
+  int count = 0;
+  struct proc *p;
+
+  // Get the pointer to user-supplied pinfo array
+  if(argptr(0, (char**)&table, NPROC * sizeof(struct pinfo)) < 0)
+    return -1;
+
+  acquire(&ptable.lock);
+
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->state == UNUSED)
+      continue;
+
+    table[count].pid   = p->pid;
+    table[count].ppid  = p->parent ? p->parent->pid : 0;
+    table[count].state = p->state;
+    table[count].sz    = p->sz;
+    safestrcpy(table[count].name, p->name, sizeof(p->name));
+    count++;
+  }
+
+  release(&ptable.lock);
+  return count;
+}
