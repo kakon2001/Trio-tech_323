@@ -92,6 +92,7 @@ found:
   p->wait_ticks  = 0;
   p->run_count   = 0;
   p->start_ticks = ticks;   // record birth time
+  p->trace_mask  = 0;       // initialize trace mask
   release(&ptable.lock);
 
   // Allocate kernel stack.
@@ -203,6 +204,7 @@ fork(void)
   np->parent = curproc;
   *np->tf = *curproc->tf;
   np->priority = curproc->priority;
+  np->trace_mask = curproc->trace_mask;
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
 

@@ -56,6 +56,7 @@ struct proc {
   int wait_ticks;
   int run_count;               // number of times this process has been scheduled
   uint start_ticks;            // tick count when process was created
+  int trace_mask;              // syscall trace mask
 };
 
 // Process memory is laid out contiguously, low addresses first:

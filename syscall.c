@@ -105,6 +105,8 @@ extern int sys_write(void);
 extern int sys_uptime(void);
 extern int sys_setpriority(void);
 extern int sys_pinfo(void);
+extern int sys_trace(void);
+
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
 [SYS_exit]    sys_exit,
@@ -129,6 +131,11 @@ static int (*syscalls[])(void) = {
 [SYS_close]        sys_close,
 [SYS_setpriority]  sys_setpriority,
 [SYS_pinfo]        sys_pinfo,
+[SYS_trace]        sys_trace,
+};
+
+static char *syscall_names[] = {
+  "", "fork", "exit", "wait", "pipe", "read", "kill", "exec", "fstat", "chdir", "dup", "getpid", "sbrk", "sleep", "uptime", "open", "write", "mknod", "unlink", "link", "mkdir", "close", "pinfo", "setpriority", "trace"
 };
 
 void
@@ -139,7 +146,12 @@ syscall(void)
 
   num = curproc->tf->eax;
   if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {
-    curproc->tf->eax = syscalls[num]();
+    int ret = syscalls[num]();
+    curproc->tf->eax = ret;
+    if((curproc->trace_mask >> num) & 1) {
+      cprintf("PID: %d | Syscall: %s (number: %d) | Returns: %d\n", 
+              curproc->pid, syscall_names[num], num, ret);
+    }
   } else {
     cprintf("%d %s: unknown sys call %d\n",
             curproc->pid, curproc->name, num);

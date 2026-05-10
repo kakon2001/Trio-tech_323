@@ -26,6 +26,7 @@ int sleep(int);
 int uptime(void);
 int setpriority(int);
 int pinfo(struct pinfo*);
+int trace(int);
 // ulib.c
 int stat(const char*, struct stat*);
 char* strcpy(char*, const char*);
